@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración - Sistema de Gestión de Comercio Internacional</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Configuración</h1>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="generate-docs.html">Generar Documentos</a></li>
+            <li><a href="validate-docs.html">Validar Documentos</a></li>
+            <li><a href="reports.html">Reportes</a></li>
+            <li><a href="settings.html">Configuración</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="settings">
+            <h2>Ajustes del Sistema</h2>
+            <form id="settings-form">
+                <!-- Añadir campos de configuración -->
+                <label for="language">Idioma:</label>
+                <select id="language" name="language">
+                    <option value="es">Español</option>
+                    <option value="en">Inglés</option>
+                </select>
+                <br><br>
+                <label for="notifications">Notificaciones:</label>
+                <input type="checkbox" id="notifications" name="notifications"> Habilitar
+                <br><br>
+                <input type="submit" value="Guardar Cambios">
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Equipo 7. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>

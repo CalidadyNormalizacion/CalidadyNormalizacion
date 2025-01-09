@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generar Documentos - Sistema de Gestión de Comercio Internacional</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Generar Documentos</h1>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="generate-docs.html">Generar Documentos</a></li>
+            <li><a href="validate-docs.html">Validar Documentos</a></li>
+            <li><a href="reports.html">Reportes</a></li>
+            <li><a href="settings.html">Configuración</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="generate-docs">
+            <h2>Formulario de Generación de Documentos</h2>
+            <form id="generate-doc-form" action="procesar_datos.php" method="POST">
+                <label for="doc-type">Tipo de Documento:</label>
+                <select id="doc-type" name="doc-type">
+                    <option value="Exportacion">Exportación</option>
+                    <option value="Importacion">Importación</option>
+                </select>
+                <br><br>
+                <label for="doc-date">Fecha de Generación:</label>
+                <input type="date" id="doc-date" name="doc_date" required>
+                <br><br>
+                <label for="doc-number">Número de Documento:</label>
+                <input type="text" id="doc-number" name="doc-number" readonly>
+                <br></br>
+                <label for="prod-type">Tipo de Producto:</label>
+                <select id="prod-type" name="prod-type">
+                    <option value="Perecedero">Perecedero</option>
+                    <option value="No Perecedero">No Perecedero</option>
+                </select>
+                <br></br>
+                <label for="pl-origin-country">País y Estado de Orígen:</label>
+                <select id="pl-origin-country" name="pl-origin-country">
+                    <option value="MX">México</option>
+                    <option value="USA">Estados Unidos</option>
+                    <option value="CHN">China</option>
+                    <option value="JPN">Japón</option>
+                    <option value="KOS">Corea del Sur</option>
+                    <option value="CAN">Canadá</option>
+                    <option value="BRL">Brasil</option>
+                    <option value="COL">Colombia</option>
+                    <option value="ARG">Argentina</option>
+                </select>
+                <label for="pl-origin-state">Estado de Origen:</label>
+                <select id="pl-origin-state" name="pl-origin-state">
+                </select> 
+                <br></br>
+                <label for="pl-dest-country">País de Destino:</label>
+                <select id="pl-dest-country" name="pl-dest-country">
+                    <option value="MX">México</option>
+                    <option value="USA">Estados Unidos</option>
+                    <option value="CHN">China</option>
+                    <option value="JPN">Japón</option>
+                    <option value="KOS">Corea del Sur</option>
+                    <option value="CAN">Canadá</option>
+                    <option value="BRL">Brasil</option>
+                    <option value="COL">Colombia</option>
+                    <option value="ARG">Argentina</option>
+                </select>
+                <label for="pl-dest-state">Estado de Destino:</label>
+                <select id="pl-dest-state" name="pl-dest-state">
+                </select>
+                <br></br>
+                <label for="prod-qty">Cantidad de producto en KG:</label>
+                <input type="number" id="prod-qty" name="prod_qty" required>
+                <br></br>
+                <button type="button" id="generate-pdf">Generar PDF</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Equipo 7. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        // Datos de estados por país
+        const statesByCountry = {
+            MX: ["Ciudad de México", "Jalisco", "Nuevo León"],
+            USA: ["California", "Texas", "Florida"],
+            CHN: ["Beijing", "Shanghái", "Guangdong"],
+            JPN: ["Tokio", "Osaka", "Kyoto"],
+            KOS: ["Seúl", "Incheon", "Busan"],
+            CAN: ["Ontario", "Quebec", "Alberta"],
+            BRL: ["São Paulo", "Río de Janeiro", "Bahía"],
+            COL: ["Bogotá", "Antioquia", "Valle del Cauca"],
+            ARG: ["Buenos Aires", "Córdoba", "Santa Fe"]
+        };
+
+        // Elementos del DOM
+        const originCountrySelect = document.getElementById("pl-origin-country");
+        const originStateSelect = document.getElementById("pl-origin-state");
+        const destCountrySelect = document.getElementById("pl-dest-country");
+        const destStateSelect = document.getElementById("pl-dest-state");
+
+        // Función para actualizar los estados según el país seleccionado
+        function updateStates(countrySelect, stateSelect) {
+            const selectedCountry = countrySelect.value;
+            const states = statesByCountry[selectedCountry] || [];
+
+            // Limpiar opciones anteriores
+            stateSelect.innerHTML = "";
+
+            // Agregar nuevas opciones
+            states.forEach(state => {
+                const option = document.createElement("option");
+                option.value = state;
+                option.textContent = state;
+                stateSelect.appendChild(option);
+            });
+        }
+
+        // Manejadores de eventos para cambios en los select de país
+        originCountrySelect.addEventListener("change", () => {
+            updateStates(originCountrySelect, originStateSelect);
+        });
+
+        destCountrySelect.addEventListener("change", () => {
+            updateStates(destCountrySelect, destStateSelect);
+        });
+
+        // Inicializar con los países seleccionados por defecto
+        originCountrySelect.dispatchEvent(new Event("change"));
+        destCountrySelect.dispatchEvent(new Event("change"));
+
+        // Generar un número de documento aleatorio
+        function generateDocumentNumber() {
+            return Math.floor(100000 + Math.random() * 900000);
+        }
+        document.getElementById("doc-number").value = generateDocumentNumber();
+
+        document.addEventListener("DOMContentLoaded", () => {
+        const { jsPDF } = window.jspdf;
+
+        // Función para generar PDF
+        document.getElementById("generate-pdf").addEventListener("click", () => {
+            const docType = document.getElementById("doc-type").value;
+            const docDate = document.getElementById("doc-date").value;
+            const docNumber = document.getElementById("doc-number").value;
+            const prodType = document.getElementById("prod-type").value;
+            const originCountry = document.getElementById("pl-origin-country").value;
+            const prodQty = document.getElementById("prod-qty").value;
+
+            const pdf = new jsPDF();
+            pdf.text("Documento Generado", 10, 10);
+            pdf.text(`Tipo de Documento: ${docType}`, 10, 20);
+            pdf.text(`Fecha de Generación: ${docDate}`, 10, 30);
+            pdf.text(`Número de Documento: ${docNumber}`, 10, 40);
+            pdf.text(`Tipo de Producto: ${prodType}`, 10, 50);
+            pdf.text(`País de Origen: ${originCountry}`, 10, 60);
+            pdf.text(`Cantidad de Producto en KG: ${prodQty}`, 10, 70);
+
+            pdf.save("documento.pdf");
+        });
+
+        // Generar un número de documento aleatorio
+        document.getElementById("doc-number").value = Math.floor(100000 + Math.random() * 900000);
+    });
+    </script>
+</body>
+</html>
