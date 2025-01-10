@@ -24,11 +24,43 @@
     <main>
         <section id="validate-docs">
             <h2>Lista de Documentos para Validar</h2>
-            <ul id="validation-list">
-                <li>Documento 1 - <span>Estado: Pendiente</span></li>
-                <li>Documento 2 - <span>Estado: Aprobado</span></li>
-                <li>Documento 3 - <span>Estado: Rechazado</span></li>
-            </ul>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipo</th>
+                        <th>Fecha</th>
+                        <th>Número</th>
+                        <th>Producto</th>
+                        <th>Origen</th>
+                        <th>Destino</th>
+                        <th>Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody id="docs-table-body"></tbody>
+            </table>
+            <script>
+                fetch('get_documents.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        const tableBody = document.getElementById('docs-table-body');
+                        data.forEach(doc => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${doc.id}</td>
+                                <td>${doc.doc_type}</td>
+                                <td>${doc.doc_date}</td>
+                                <td>${doc.doc_number}</td>
+                                <td>${doc.prod_type}</td>
+                                <td>${doc.origin_country}, ${doc.origin_state}</td>
+                                <td>${doc.dest_country}, ${doc.dest_state}</td>
+                                <td>${doc.prod_qty}</td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    });
+            </script>
+            
         </section>
     </main>
 
@@ -37,3 +69,4 @@
     </footer>
 </body>
 </html>
+
